@@ -1,8 +1,8 @@
 from app.domain.exceptions import ElasticClientException
 from app.service.config import config
 from app.service.client import ElasticClient
-from app.service.combine_indices import combine_indices
 from app.service.find_mappings_difference import find_mappings_difference
+from pprint import pprint
 
 
 def main():
@@ -12,14 +12,12 @@ def main():
 
     try:
         new_indices = client.indices_for_codename(new_codename)
-        print(new_indices)
 
         old_codename = input("Provide a codename of your old Tracardi version:\n")
         old_indices = client.indices_for_codename(old_codename)
 
-        combined = combine_indices(old_indices, new_indices)
-        with_differences = find_mappings_difference(combined)
-        print(with_differences)
+        differences = find_mappings_difference(old_indices, new_indices)
+        pprint(differences, depth=5)
 
     except ElasticClientException as e:
         client.close()
