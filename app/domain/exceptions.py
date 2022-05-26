@@ -1,0 +1,2 @@
+class ElasticClientException(Exception):
+    pass
