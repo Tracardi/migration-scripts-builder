@@ -17,7 +17,7 @@ class ElasticClient:
                 result.update(**self._client.indices.get_mapping(index=index_name).body)
 
             if codename:
-                result = {key[len(result) + 1:]: result[key] for key in result}
+                result = {key.split(codename)[1][1:]: result[key] for key in result}
 
             return result
 

@@ -12,6 +12,7 @@ def main():
 
     try:
         new_indices = client.indices_for_codename(new_codename)
+        print(new_indices)
 
         old_codename = input("Provide a codename of your old Tracardi version:\n")
         old_indices = client.indices_for_codename(old_codename)
@@ -19,8 +20,6 @@ def main():
         combined = combine_indices(old_indices, new_indices)
         with_differences = find_mappings_difference(combined)
         print(with_differences)
-
-
 
     except ElasticClientException as e:
         client.close()
