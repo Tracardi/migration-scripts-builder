@@ -1,4 +1,4 @@
 elasticsearch
 pydantic
 typing
-deepdiff
+dotty-dict

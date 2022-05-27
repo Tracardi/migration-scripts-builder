@@ -1,6 +1,8 @@
 from elasticsearch import Elasticsearch, AuthenticationException
 from pydantic import AnyHttpUrl
 from app.domain.exceptions import ElasticClientException
+from app.service.find_field_types import find_field_types
+import re
 
 
 class ElasticClient:
@@ -8,7 +10,7 @@ class ElasticClient:
     def __init__(self, host: AnyHttpUrl):
         self._client = Elasticsearch(hosts=host)
 
-    def indices_for_codename(self, codename: str):
+    def mappings_for_codename(self, codename: str):
         try:
             indices_names = self._client.indices.get(index=f"{codename}-tracardi-*" if codename else "tracardi-*")
 
@@ -18,6 +20,13 @@ class ElasticClient:
 
             if codename:
                 result = {key.split(codename)[1][1:]: result[key] for key in result}
+
+            result = {
+                re.split(r"-[0-9]{4}-[0-9]{1,2}", key)[0]: {
+                    "mapping": find_field_types(result[key]["mappings"]["properties"]),
+                    "multi": bool(re.findall(r"-[0-9]{4}-[0-9]{1,2}", key))
+                } for key in result
+            }
 
             return result
 
