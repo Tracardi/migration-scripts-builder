@@ -4,6 +4,7 @@ from app.service.client import ElasticClient
 from pprint import pprint
 from app.domain.index_difference import IndexDifference
 from app.service.difference_finder import DifferenceFinder
+from app.service.rules_engine import RulesEngine
 
 
 def main():
@@ -30,7 +31,7 @@ def main():
         ]
 
         for diff in diffs:
-            print(diff.difference)
+            print(RulesEngine(difference=diff.difference).get_operations())
 
     except ElasticClientException as e:
         client.close()

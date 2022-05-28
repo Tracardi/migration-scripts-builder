@@ -1,7 +1,9 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 class Operation(BaseModel):
-    operation: str
+    type: str
     source: str
     destination: str
+    cast: Optional[str] = None
