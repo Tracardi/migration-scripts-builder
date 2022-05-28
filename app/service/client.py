@@ -1,7 +1,6 @@
 from elasticsearch import Elasticsearch, AuthenticationException
 from pydantic import AnyHttpUrl
 from app.domain.exceptions import ElasticClientException
-from app.service.find_field_types import find_field_types
 import re
 from app.domain.index import Index
 
@@ -32,7 +31,7 @@ class ElasticClient:
                 re.split(r"-[0-9]{4}-[0-9]{1,2}", key)[0]: Index(
                     name=re.split(r"-[0-9]{4}-[0-9]{1,2}", key)[0],
                     multi=bool(re.findall(r"-[0-9]{4}-[0-9]{1,2}", key)),
-                    mapping=find_field_types(result[key]["mappings"]["properties"])
+                    mapping=Index.standardize_mapping(result[key]["mappings"]["properties"])
                 ) for key in result
             }
 

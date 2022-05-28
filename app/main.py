@@ -3,7 +3,7 @@ from app.service.config import config
 from app.service.client import ElasticClient
 from pprint import pprint
 from app.domain.index_difference import IndexDifference
-from app.service.compare_mappings import compare_mappings
+from app.service.difference_finder import DifferenceFinder
 
 
 def main():
@@ -20,14 +20,17 @@ def main():
         diffs = [
             IndexDifference(
                 name=key,
-                difference=compare_mappings(old_indices[key].mapping, new_indices[key].mapping),
+                difference=DifferenceFinder(
+                    old_mapping=old_indices[key].mapping,
+                    new_mapping=new_indices[key].mapping
+                ).get_difference(),
                 multi=old_indices[key].multi and new_indices[key].multi,
             )
             for key in set(new_indices.keys()).intersection(old_indices.keys())
         ]
 
-        for index_diff in diffs:
-            print(index_diff.difference)
+        for diff in diffs:
+            print(diff.difference)
 
     except ElasticClientException as e:
         client.close()
