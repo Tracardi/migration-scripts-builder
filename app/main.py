@@ -25,9 +25,9 @@ def main():
             for key in set(new_indices.keys()).intersection(old_indices.keys())
         }
 
-        scripts = {key: build_script(indices[key]["differences"]) for key in indices}
+        pprint(indices["tracardi-event"]['differences'])
 
-        pprint(scripts)
+        scripts = {key: build_script(indices[key]["differences"]) for key in indices}
 
     except ElasticClientException as e:
         client.close()
