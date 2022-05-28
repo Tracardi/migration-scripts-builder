@@ -49,13 +49,6 @@ class RulesEngine(BaseModel):
                         cast=added.type
                     )
                 )
-                try:
-                    operation = self.__getattribute__(f"_cast_{removed.type}_to_{added.type}")(change.name)
-                    if operation is not None:
-                        res.append(operation)
-
-                except AttributeError as _:
-                    pass
             res.append(Operation(source=f"<type {added.type}>", destination=added.name, type="user_input", cast=None))
 
         while self.difference.removed:
