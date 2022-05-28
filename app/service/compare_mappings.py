@@ -1,19 +1,21 @@
-from dotty_dict.dotty_dict import Dotty
+from app.domain.field import Field
+from app.domain.field_change import FieldChange
+from app.domain.mappings_difference import MappingsDifference
 
 
-def compare_mappings(old_mapping: dict, new_mapping: dict) -> dict:
-    removed = set(old_mapping) - set(new_mapping)
-    added = set(new_mapping) - set(old_mapping)
+def compare_mappings(old_mapping: dict, new_mapping: dict) -> MappingsDifference:
 
-    type_changes = {
-        key: {"old": old_mapping[key], "new": new_mapping[key]} for key in old_mapping if
-        key in old_mapping and
-        key in new_mapping and
-        old_mapping[key] != new_mapping[key]
-    }
+    removed = [
+        Field(name=field_name, type=old_mapping[field_name]) for field_name in set(old_mapping) - set(new_mapping)
+    ]
+    added = [
+        Field(name=field_name, type=new_mapping[field_name]) for field_name in set(new_mapping) - set(old_mapping)
+    ]
 
-    return {
-        "removed": list(removed),
-        "added": list(added),
-        "type_changes": type_changes
-    }
+    type_changes = [
+        FieldChange(name=key, old_type=old_mapping[key], new_type=new_mapping[key]) for key in
+        set(old_mapping).intersection(set(new_mapping))
+        if old_mapping[key] != new_mapping[key]
+    ]
+
+    return MappingsDifference(added=added, removed=removed, changed=type_changes)

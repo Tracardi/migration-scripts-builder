@@ -3,6 +3,7 @@ from pydantic import AnyHttpUrl
 from app.domain.exceptions import ElasticClientException
 from app.service.find_field_types import find_field_types
 import re
+from app.domain.index import Index
 
 
 class ElasticClient:
@@ -28,10 +29,11 @@ class ElasticClient:
                 result = {key.split(codename)[1][1:]: result[key] for key in result}
 
             result = {
-                re.split(r"-[0-9]{4}-[0-9]{1,2}", key)[0]: {
-                    "mapping": find_field_types(result[key]["mappings"]["properties"]),
-                    "multi": bool(re.findall(r"-[0-9]{4}-[0-9]{1,2}", key))
-                } for key in result
+                re.split(r"-[0-9]{4}-[0-9]{1,2}", key)[0]: Index(
+                    name=re.split(r"-[0-9]{4}-[0-9]{1,2}", key)[0],
+                    multi=bool(re.findall(r"-[0-9]{4}-[0-9]{1,2}", key)),
+                    mapping=find_field_types(result[key]["mappings"]["properties"])
+                ) for key in result
             }
 
             return result
