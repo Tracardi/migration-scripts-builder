@@ -2,6 +2,8 @@ from app.domain.exceptions import ElasticClientException
 from app.service.config import config
 from app.service.client import ElasticClient
 from pprint import pprint
+from app.service.compare_mappings import compare_mappings
+from app.service.build_script import build_script
 
 
 def main():
@@ -11,11 +13,21 @@ def main():
     old_codename = input("Provide a codename of your old Tracardi version:\n")
 
     try:
-        old_indices = client.mappings_for_codename(old_codename)
+        old_indices = client.mappings_for_codename(old_codename, new_codename == old_codename)
         new_indices = client.mappings_for_codename(new_codename)
         client.close()
 
-        pprint(old_indices["tracardi-event"])
+        indices = {
+            key: {
+                "differences": compare_mappings(old_indices[key]["mapping"], new_indices[key]["mapping"]),
+                "multi": old_indices[key]["multi"] and new_indices[key]["multi"]
+            }
+            for key in set(new_indices.keys()).intersection(old_indices.keys())
+        }
+
+        scripts = {key: build_script(indices[key]["differences"]) for key in indices}
+
+        pprint(scripts)
 
     except ElasticClientException as e:
         client.close()

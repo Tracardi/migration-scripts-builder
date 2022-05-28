@@ -10,9 +10,15 @@ class ElasticClient:
     def __init__(self, host: AnyHttpUrl):
         self._client = Elasticsearch(hosts=host)
 
-    def mappings_for_codename(self, codename: str):
+    def mappings_for_codename(self, codename: str, prev: bool = False):
+        index_name_template = f"{codename}-tracardi-*" if codename else "tracardi-*"
+        if prev is True:
+            index_name_template += ".prev"
+
         try:
-            indices_names = self._client.indices.get(index=f"{codename}-tracardi-*" if codename else "tracardi-*")
+            indices_names = self._client.indices.get(index=index_name_template)
+            if prev is False:
+                indices_names = [index_name for index_name in indices_names if not index_name.endswith(".prev")]
 
             result = {}
             for index_name in indices_names:
