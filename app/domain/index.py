@@ -14,6 +14,7 @@ class Index(BaseModel):
 
         for key in mappings:
             if isinstance(mappings[key], dict) and "properties" in mappings[key]:
+                fields[key if curr_path is None else f"{curr_path}.{key}"] = "_complex"
                 Index.standardize_mapping(
                     mappings[key]["properties"],
                     key if curr_path is None else f"{curr_path}.{key}",
