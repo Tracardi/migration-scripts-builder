@@ -3,6 +3,7 @@ from pydantic import AnyHttpUrl
 from app.domain.exceptions import ElasticClientException
 import re
 from app.domain.index import Index
+from typing import Dict
 
 
 class ElasticClient:
@@ -10,7 +11,12 @@ class ElasticClient:
     def __init__(self, host: AnyHttpUrl):
         self._client = Elasticsearch(hosts=host)
 
-    def mappings_for_codename(self, codename: str, prev: bool = False):
+    def mappings_for_codename(self, codename: str, prev: bool = False) -> Dict[str, Index]:
+        """
+        :param codename: codename of the version
+        :param prev: look for indices with .prev suffix
+        Returns all found indices for the version with given codename.
+        """
         index_name_template = f"{codename}-tracardi-*" if codename else "tracardi-*"
         if prev is True:
             index_name_template += ".prev"

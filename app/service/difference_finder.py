@@ -10,6 +10,9 @@ class DifferenceFinder(BaseModel):
     new_mapping: Dict[str, str]
 
     def get_difference(self) -> MappingsDifference:
+        """
+        Returns given MappingsDifference object for mappings given in __init__.
+        """
         removed = [
             Field(
                 name=field_name,

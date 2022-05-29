@@ -3,12 +3,21 @@ from typing import Dict, Optional, Any
 
 
 class Index(BaseModel):
+    """
+    Represents Elasticsearch index:
+        name="tracardi-index-name",
+        multi="multi-index-or-not",
+        mapping={"field": {"type": "keyword"}, "field2": {"properties": {...}}}
+    """
     name: str
     multi: bool
     mapping: Dict[str, Any] = {}
 
     @staticmethod
     def standardize_mapping(mappings: dict, curr_path: str = None, fields: dict = None) -> dict:
+        """
+        Flattens given mappings to form {"field.number.one": "<type>", "field.two": "<type>"}
+        """
         if fields is None:
             fields = {}
 
