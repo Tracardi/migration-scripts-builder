@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 from app.domain.mappings_difference import MappingsDifference
+from app.service.rules_engine import RulesEngine
+from app.domain.index_migration_schema import IndexMigrationSchema
 
 
 class IndexDifference(BaseModel):
@@ -12,3 +14,10 @@ class IndexDifference(BaseModel):
     name: str
     multi: bool
     difference: MappingsDifference
+
+    def to_migration(self):
+        return IndexMigrationSchema(
+            name=self.name,
+            multi=self.multi,
+            operations=RulesEngine(difference=self.difference).get_operations()
+        )

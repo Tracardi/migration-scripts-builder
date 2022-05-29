@@ -4,7 +4,6 @@ from app.service.client import ElasticClient
 from pprint import pprint
 from app.domain.index_difference import IndexDifference
 from app.service.difference_finder import DifferenceFinder
-from app.service.rules_engine import RulesEngine
 
 
 def main():
@@ -30,8 +29,10 @@ def main():
             for key in set(new_indices.keys()).intersection(old_indices.keys())
         ]
 
-        for diff in diffs:
-            print(RulesEngine(difference=diff.difference).get_operations())
+        migrations = [diff.to_migration().build_migration(old_codename, new_codename) for diff in diffs]
+
+        for mig in migrations:
+            print(mig.endpoint.body.script.source)
 
     except ElasticClientException as e:
         client.close()

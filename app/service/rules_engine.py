@@ -5,24 +5,27 @@ from typing import List, Optional
 from app.misc.cast_table import cast_table
 from app.domain.field_change import FieldChange
 from app.domain.field import Field
+from app.domain.index_operations import IndexOperations
 
 
 class RulesEngine(BaseModel):
     difference: MappingsDifference
 
-    def get_operations(self) -> List[Operation]:
+    def get_operations(self) -> IndexOperations:
         """
         Returns list of operations required to migrate data from given index.
         """
         self.difference.sort()
 
-        changed_ops = self.handle_changed()
-        added_ops = self.handle_added()
-        removed_ops = self.handle_removed()
+        ops = []
+        ops.extend(self.handle_changed())
+        ops.extend(self.handle_added())
+        ops.extend(self.handle_removed())
 
-        ops = [*changed_ops, *added_ops, *removed_ops]
-
-        return ops
+        return IndexOperations(
+            for_worker=[op for op in ops if op.for_worker is True],
+            for_script=[op for op in ops if op.for_worker is False]
+        )
 
     def handle_added(self) -> List[Operation]:
         ops = []
