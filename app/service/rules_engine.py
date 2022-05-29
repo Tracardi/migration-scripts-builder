@@ -1,8 +1,9 @@
 from pydantic import BaseModel
 from app.domain.mappings_difference import MappingsDifference
 from app.domain.operation import Operation
-from typing import List
+from typing import List, Optional
 from app.misc.cast_table import cast_table
+from app.domain.field_change import FieldChange
 
 
 class RulesEngine(BaseModel):
@@ -18,81 +19,43 @@ class RulesEngine(BaseModel):
         return [*changed_ops]
 
     def handle_changed(self) -> List[Operation]:
-        res = []
+        ops = []
 
         while self.difference.changed:
-            change = self.difference.changed.pop()
-            try:
-                operation = self.__getattribute__(f"_cast_{change.old_type}_to_{change.new_type}")(change.name)
-                if operation is not None:
-                    res.append(operation)
+            changed_field = self.difference.changed.pop(0)
 
-            except AttributeError as _:
-                res.append(
-                    Operation(
-                        source=change.name,
-                        destination=change.name,
-                        cast=change.new_type,
-                        type="cast" if self.able_to_auto_cast(change.old_type, change.new_type) else
-                        "potential_conflict"
-                    )
+            op = self.handle_type_change(changed_field)
+            if op is not None:
+                ops.append(op)
+
+        return ops
+
+    def handle_type_change(self, changed_field: FieldChange) -> Optional[Operation]:
+
+        if changed_field.new_type in cast_table.get(changed_field.old_type, {}):
+            if cast_table[changed_field.old_type][changed_field.new_type] == "explicit":
+                return Operation(
+                    for_worker=False,
+                    type="cast",
+                    source=changed_field.name,
+                    destination=changed_field.name,
+                    cast=changed_field.new_type
                 )
 
-        while self.difference.added:
-            added = self.difference.added.pop()
-            for removed in self.difference.removed:
-                res.append(
-                    Operation(
-                        source=removed.name,
-                        destination=added.name,
-                        type="cast" if self.able_to_auto_cast(removed.type, added.type) else "potential_type_conflict",
-                        cast=added.type
-                    )
-                )
-            res.append(Operation(source=f"<type {added.type}>", destination=added.name, type="user_input", cast=None))
+        elif changed_field.new_type in ("text", "string", "match_only_text", "keyword", "constant_keyword", "wildcard")\
+                and changed_field.old_type in ("object", "_complex"):
 
-        while self.difference.removed:
-            removed = self.difference.removed.pop()
-            res.append(Operation(source=removed.name, destination=removed.name, cast=None, type="remove"))
+            self.delete_children(changed_field.name)
 
-        return res
+            return Operation(
+                for_worker=True,
+                type="base64",
+                source=changed_field.name,
+                destination=changed_field.name,
+                cast=None
+            )
 
-    def _cast__complex_to_object(self, change_name: str) -> None:
-        self.difference.removed = [field for field in self.difference.removed if not field.name.startswith(change_name)]
-        return None
+    def delete_children(self, field_name: str):
+        self.difference.removed = [field for field in self.difference.removed if field.name.startswith(field_name)]
 
-    def _cast_object_to__complex(self, change_name: str) -> None:
-        self.difference.added = [field for field in self.difference.added if not field.name.startswith(change_name)]
-        return None
 
-    def _cast__complex_to_string(self, change_name: str) -> Operation:
-        self.difference.removed = [field for field in self.difference.removed if not field.name.startswith(change_name)]
-        return Operation(
-            type="base64",
-            cast=None,
-            source=change_name,
-            destination=change_name
-        )
-
-    @property
-    def _cast__complex_to_text(self):
-        return self._cast__complex_to_string
-
-    @property
-    def _cast__complex_to_keyword(self):
-        return self._cast__complex_to_string
-
-    @property
-    def _cast_object_to_string(self):
-        return self._cast__complex_to_string
-
-    @property
-    def _cast_object_to_keyword(self):
-        return self._cast__complex_to_string
-
-    def _cast_object_to_text(self):
-        return self._cast__complex_to_string
-
-    @staticmethod
-    def able_to_auto_cast(from_type: str, to_type: str) -> bool:
-        return to_type in cast_table.get(from_type, [])
