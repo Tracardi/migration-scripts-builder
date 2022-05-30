@@ -8,7 +8,7 @@ class IndexName(BaseModel):
 
 
 class PainlessScript(BaseModel):
-    source: str
+    source: Optional[str] = None
     lang: Optional[str] = "painless"
 
 

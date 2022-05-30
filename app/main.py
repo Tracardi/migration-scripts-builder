@@ -32,7 +32,8 @@ def main():
         migrations = [diff.to_migration().build_migration(old_codename, new_codename) for diff in diffs]
 
         for mig in migrations:
-            print(mig.endpoint.body.script.source)
+            if mig.endpoint.body.script.source:
+                print(mig.dict())
 
     except ElasticClientException as e:
         client.close()

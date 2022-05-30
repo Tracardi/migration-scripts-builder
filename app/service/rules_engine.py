@@ -128,6 +128,16 @@ class RulesEngine(BaseModel):
                 )
             )
 
+        ops.append(
+            Operation(
+                for_worker=False,
+                type="add",
+                source=added_field.name,
+                destination=added_field.name,
+                cast=added_field.type
+            )
+        )
+
         return ops
 
     def delete_children(self, field_name: str):
