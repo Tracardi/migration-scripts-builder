@@ -4,6 +4,7 @@ from app.service.client import ElasticClient
 from pprint import pprint
 from app.domain.index_difference import IndexDifference
 from app.service.difference_finder import DifferenceFinder
+from app.service.save_manager import SaveManager
 
 
 def main():
@@ -31,9 +32,9 @@ def main():
 
         migrations = [diff.to_migration().build_migration(old_codename, new_codename) for diff in diffs]
 
-        for mig in migrations:
-            if mig.endpoint.body.script.source:
-                print(mig.dict())
+        mig_name = input("How would you like to name your migration?\n")
+
+        SaveManager.save_migrations(migrations, mig_name)
 
     except ElasticClientException as e:
         client.close()
