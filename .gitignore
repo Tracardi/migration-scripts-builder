@@ -133,6 +133,3 @@ dmypy.json
 
 # pytest
 .pytest_cache
-
-#temp
-app/tmp/

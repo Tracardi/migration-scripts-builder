@@ -17,10 +17,10 @@ class IndexMigrationSchema(BaseModel):
             endpoint=ReindexEndpoint(
                 body=EndpointBody(
                     source=IndexName(
-                        name=f"{old_prefix}-{self.name}" if old_prefix else self.name,
+                        index=f"{old_prefix}-{self.name}" if old_prefix else self.name,
                         prev=old_prefix == new_prefix
                     ),
-                    dest=IndexName(name=f"{new_prefix}-{self.name}"),
+                    dest=IndexName(index=f"{new_prefix}-{self.name}"),
                     script=PainlessScript(
                         source=ScriptBuilder(operations=self.operations.for_script).build()
                     )

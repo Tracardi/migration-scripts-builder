@@ -3,7 +3,7 @@ from typing import Optional
 
 
 class IndexName(BaseModel):
-    name: str
+    index: str
     prev: Optional[bool] = False
 
 

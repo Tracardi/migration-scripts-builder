@@ -10,4 +10,4 @@ class SaveManager:
 
         with open(f'tmp/{name}.json', mode="w+") as migration_file:
 
-            json.dump([mig.dict() for mig in migrations], migration_file, indent="\t")
+            json.dump([mig.dict() for mig in migrations], migration_file, indent=2)

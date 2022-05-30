@@ -37,14 +37,13 @@ class ScriptBuilder(BaseModel):
     @classmethod
     def long_to_date(cls, op: Operation) -> List[str]:
         return [
-            f"Instant instant = Instant.ofEpochMilli(ctx._source.{op.source})",
-            f"temp.{op.destination} = instant"
+            f"temp.{op.destination} = Instant.ofEpochMilli(ctx._source.{op.source}).toString().replace(\"Z\", \"\")",
         ]
 
     @classmethod
     def date_to_long(cls, op: Operation) -> List[str]:
         return [
-            f"temp.{op.destination} = ctx._source.{op.source}.toEpochMilli()"
+            f"temp.{op.destination} = Instant.parse(ctx._source.{op.source} + \"Z\").toEpochMilli()"
         ]
 
     @classmethod
