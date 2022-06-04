@@ -6,6 +6,9 @@ migration scripts for Tracardi.
 # Setup
 In the repo's directory, run ```pip install -r requirements.txt```
 
+In environmental variables, include variable `ELASTIC_HOST`, containing
+Elasticsearch instance IP, port and username with password if needed.
+
 # Usage
 After setup, run `main.py`. Provide the codenames of both old and new Tracardi
 version (just hit Enter if the previous version has no codename, at least one
