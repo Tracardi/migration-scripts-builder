@@ -17,7 +17,7 @@ class ElasticClient:
         :param prev: look for indices with .prev suffix
         Returns all found indices for the version with given codename.
         """
-        index_name_template = f"{codename}-tracardi-*" if codename else "tracardi-*"
+        index_name_template = f"{codename}.tracardi-*" if codename else "tracardi-*"
         if prev is True:
             index_name_template += ".prev"
 
