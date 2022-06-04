@@ -14,7 +14,7 @@ def main():
     old_codename = input("Provide a codename of your old Tracardi version:\n")
 
     try:
-        old_indices = client.mappings_for_codename(old_codename, new_codename == old_codename)
+        old_indices = client.mappings_for_codename(old_codename)
         new_indices = client.mappings_for_codename(new_codename)
         client.close()
 

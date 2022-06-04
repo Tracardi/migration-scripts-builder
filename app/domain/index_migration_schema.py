@@ -18,7 +18,6 @@ class IndexMigrationSchema(BaseModel):
                 body=EndpointBody(
                     source=IndexName(
                         index=f"{old_prefix}.{self.name}" if old_prefix else self.name,
-                        prev=old_prefix == new_prefix
                     ),
                     dest=IndexName(index=f"{new_prefix}.{self.name}"),
                     script=PainlessScript(

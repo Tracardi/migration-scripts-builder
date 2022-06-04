@@ -4,7 +4,6 @@ from typing import Optional
 
 class IndexName(BaseModel):
     index: str
-    prev: Optional[bool] = False
 
 
 class PainlessScript(BaseModel):
