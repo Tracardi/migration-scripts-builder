@@ -5,13 +5,12 @@ from typing import List, Optional
 from app.misc.cast_table import cast_table
 from app.domain.field_change import FieldChange
 from app.domain.field import Field
-from app.domain.index_operations import IndexOperations
 
 
 class RulesEngine(BaseModel):
     difference: MappingsDifference
 
-    def get_operations(self) -> IndexOperations:
+    def get_operations(self) -> List[Operation]:
         """
         Returns list of operations required to migrate data from given index.
         """
@@ -22,10 +21,7 @@ class RulesEngine(BaseModel):
         ops.extend(self.handle_added())
         ops.extend(self.handle_removed())
 
-        return IndexOperations(
-            for_worker=[op for op in ops if op.for_worker is True],
-            for_script=[op for op in ops if op.for_worker is False]
-        )
+        return ops
 
     def handle_added(self) -> List[Operation]:
         ops = []
@@ -67,7 +63,6 @@ class RulesEngine(BaseModel):
         if changed_field.new_type in cast_table.get(changed_field.old_type, {}):
             if cast_table[changed_field.old_type][changed_field.new_type] == "explicit":
                 return Operation(
-                    for_worker=False,
                     type="cast",
                     source=changed_field.name,
                     destination=changed_field.name,
@@ -76,7 +71,6 @@ class RulesEngine(BaseModel):
 
             elif cast_table[changed_field.old_type][changed_field.new_type] != "implicit":
                 return Operation(
-                    for_worker=False,
                     type=cast_table[changed_field.old_type][changed_field.new_type],
                     source=changed_field.name,
                     destination=changed_field.name,
@@ -88,20 +82,11 @@ class RulesEngine(BaseModel):
 
             self.delete_children(changed_field.name)
 
-            return Operation(
-                for_worker=True,
-                type="base64",
-                source=changed_field.name,
-                destination=changed_field.name,
-                cast=None
-            )
-
     def handle_removed_field(self, removed_field: Field) -> Optional[Operation]:
 
         self.delete_children(removed_field.name)
 
         return Operation(
-            for_worker=False,
             type="remove",
             source=removed_field.name,
             destination=removed_field.name,
@@ -120,7 +105,6 @@ class RulesEngine(BaseModel):
 
             ops.append(
                 Operation(
-                    for_worker=False,
                     type=op_type,
                     source=removed_field.name,
                     destination=added_field.name,
@@ -130,7 +114,6 @@ class RulesEngine(BaseModel):
 
         ops.append(
             Operation(
-                for_worker=False,
                 type="add",
                 source=added_field.name,
                 destination=added_field.name,

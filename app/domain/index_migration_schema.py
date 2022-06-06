@@ -1,14 +1,15 @@
 from pydantic import BaseModel
-from app.domain.index_operations import IndexOperations
 from app.domain.index_migration import IndexMigration
 from app.domain.reindex_endpoint import ReindexEndpoint, EndpointBody, IndexName, PainlessScript
 from app.service.script_builder import ScriptBuilder
+from typing import List
+from app.domain.operation import Operation
 
 
 class IndexMigrationSchema(BaseModel):
     name: str
     multi: bool
-    operations: IndexOperations
+    operations: List[Operation]
 
     def build_migration(self, old_prefix: str, new_prefix: str) -> IndexMigration:
         return IndexMigration(
@@ -21,9 +22,9 @@ class IndexMigrationSchema(BaseModel):
                     ),
                     dest=IndexName(index=f"{new_prefix}.{self.name}"),
                     script=PainlessScript(
-                        source=ScriptBuilder(operations=self.operations.for_script).build()
+                        source=ScriptBuilder(operations=self.operations).build()
                     )
                 )
             ),
-            worker_operations=self.operations.for_worker
+            worker="reindex"
         )

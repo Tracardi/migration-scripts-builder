@@ -14,7 +14,6 @@ class ElasticClient:
     def mappings_for_codename(self, codename: str) -> Dict[str, Index]:
         """
         :param codename: codename of the version
-        :param prev: look for indices with .prev suffix
         Returns all found indices for the version with given codename.
         """
         index_name_template = f"{codename}.tracardi-*" if codename else "tracardi-*"

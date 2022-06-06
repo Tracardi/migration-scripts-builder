@@ -8,4 +8,4 @@ class IndexMigration(BaseModel):
     name: str
     multi: bool
     endpoint: ReindexEndpoint
-    worker_operations: List[Operation]
+    worker: str
