@@ -16,8 +16,10 @@ class IndexDifference(BaseModel):
     difference: MappingsDifference
 
     def to_migration(self):
+        ops, custom_worker_required = RulesEngine(difference=self.difference).get_operations()
         return IndexMigrationSchema(
             name=self.name,
             multi=self.multi,
-            operations=RulesEngine(difference=self.difference).get_operations()
+            operations=ops,
+            custom_worker_required=custom_worker_required
         )

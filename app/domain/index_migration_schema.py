@@ -4,14 +4,17 @@ from app.domain.reindex_endpoint import ReindexEndpoint, EndpointBody, IndexName
 from app.service.script_builder import ScriptBuilder
 from typing import List
 from app.domain.operation import Operation
+from app.domain.field_change import FieldChange
 
 
 class IndexMigrationSchema(BaseModel):
     name: str
     multi: bool
     operations: List[Operation]
+    custom_worker_required: List[FieldChange]
 
     def build_migration(self, old_prefix: str, new_prefix: str) -> IndexMigration:
+
         return IndexMigration(
             name=self.name,
             multi=self.multi,
@@ -26,5 +29,6 @@ class IndexMigrationSchema(BaseModel):
                     )
                 )
             ),
-            worker="reindex"
+            worker="reindex",
+            custom_worker_required=self.custom_worker_required if self.custom_worker_required else None
         )

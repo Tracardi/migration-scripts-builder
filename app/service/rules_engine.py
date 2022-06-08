@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from app.domain.mappings_difference import MappingsDifference
 from app.domain.operation import Operation
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from app.misc.cast_table import cast_table
 from app.domain.field_change import FieldChange
 from app.domain.field import Field
@@ -9,8 +9,9 @@ from app.domain.field import Field
 
 class RulesEngine(BaseModel):
     difference: MappingsDifference
+    custom_worker_required: Optional[List] = []
 
-    def get_operations(self) -> List[Operation]:
+    def get_operations(self) -> Tuple[List[Operation], List[FieldChange]]:
         """
         Returns list of operations required to migrate data from given index.
         """
@@ -21,7 +22,7 @@ class RulesEngine(BaseModel):
         ops.extend(self.handle_added())
         ops.extend(self.handle_removed())
 
-        return ops
+        return ops, self.custom_worker_required
 
     def handle_added(self) -> List[Operation]:
         ops = []
@@ -81,6 +82,9 @@ class RulesEngine(BaseModel):
                 and changed_field.old_type in ("object", "_complex"):
 
             self.delete_children(changed_field.name)
+
+        else:
+            self.custom_worker_required.append(changed_field)
 
     def handle_removed_field(self, removed_field: Field) -> Optional[Operation]:
 
