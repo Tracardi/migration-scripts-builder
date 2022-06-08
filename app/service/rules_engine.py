@@ -107,14 +107,15 @@ class RulesEngine(BaseModel):
                 "explicit": "cast"
             }.get(cast_type, cast_type)
 
-            ops.append(
-                Operation(
-                    type=op_type,
-                    source=removed_field.name,
-                    destination=added_field.name,
-                    cast=added_field.type
+            if op_type is not None:
+                ops.append(
+                    Operation(
+                        type=op_type,
+                        source=removed_field.name,
+                        destination=added_field.name,
+                        cast=added_field.type
+                    )
                 )
-            )
 
         ops.append(
             Operation(

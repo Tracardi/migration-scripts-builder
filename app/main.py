@@ -1,7 +1,6 @@
 from app.domain.exceptions import ElasticClientException
 from app.service.config import config
 from app.service.client import ElasticClient
-from pprint import pprint
 from app.domain.index_difference import IndexDifference
 from app.service.difference_finder import DifferenceFinder
 from app.service.save_manager import SaveManager
@@ -30,7 +29,7 @@ def main():
             for key in set(new_indices.keys()).intersection(old_indices.keys())
         ]
 
-        migrations = [diff.to_migration().build_migration(old_codename, new_codename) for diff in diffs]
+        migrations = [diff.to_migration().build_migration() for diff in diffs]
 
         mig_name = input("How would you like to name your migration?\n")
 
