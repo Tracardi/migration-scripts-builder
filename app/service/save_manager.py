@@ -10,4 +10,8 @@ class SaveManager:
 
         with open(f'tmp/{name}.json', mode="w+") as migration_file:
 
-            json.dump([mig.dict() for mig in migrations], migration_file, indent=2)
+            json.dump(
+                [mig.dict() if isinstance(mig, IndexMigration) else mig for mig in migrations],
+                migration_file,
+                indent=2
+            )

@@ -8,7 +8,7 @@ class IndexMigration(BaseModel):
     """
     That's an object that gets written to the migration file:
         id: just generic UUID4
-        name: name of the index to be migrated
+        index: name of the index to be migrated
         multi: indicates if the index to be migrated is multi or not
         script: painless script to be used to reindex docs
         worker: name of the worker to be triggered
@@ -18,7 +18,7 @@ class IndexMigration(BaseModel):
             other migrations, or other migrations depend on it
     """
     id: Optional[str] = str(uuid4())
-    name: str
+    index: str
     multi: bool
     script: Optional[str] = None
     worker: str

@@ -10,13 +10,13 @@ class IndexMigrationSchema(BaseModel):
     """
     That's an object representing index migration in terms of Operation class objects. ScriptBuilder is used to
     translate this object into IndexMigration, which is a final result:
-        name: name of the index
+        index: name of the index
         multi: indicates if the index is multi index or not
         operations: list of operations that need to be performed in order to migrate data
         custom_worker_required: informational field for the dev to know if generic reindex worker can handle this
             migration. If not, then new custom worker is required
     """
-    name: str
+    index: str
     multi: bool
     operations: List[Operation]
     custom_worker_required: List[FieldChange]
@@ -24,7 +24,7 @@ class IndexMigrationSchema(BaseModel):
     def build_migration(self) -> IndexMigration:
 
         return IndexMigration(
-            name=self.name,
+            index=self.index,
             multi=self.multi,
             script=ScriptBuilder(operations=self.operations).build(),
             worker="reindex",

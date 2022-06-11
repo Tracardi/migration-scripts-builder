@@ -7,7 +7,7 @@ from app.domain.index_migration_schema import IndexMigrationSchema
 class IndexDifference(BaseModel):
     """
     Represents difference between old and new index mappings:
-        name="index-name",
+        index="index-name",
         multi="<multi-index-or-not>",
         difference=MappingsDifference(added=[...], removed=[...], changed=[...])
     """
@@ -18,7 +18,7 @@ class IndexDifference(BaseModel):
     def to_migration(self):
         ops, custom_worker_required = RulesEngine(difference=self.difference).get_operations()
         return IndexMigrationSchema(
-            name=self.name,
+            index=self.name,
             multi=self.multi,
             operations=ops,
             custom_worker_required=custom_worker_required

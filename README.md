@@ -23,3 +23,32 @@ though, since it arrives in form:
 ```
 `//` have to be removed wherever you find it reasonable for the line to
 be executed (if casting or re-assigning is required).
+
+Sometimes, changes has to be reviewed by Tracardi developer. For this purpose,
+here's the structure of the migration schema:
+```json
+{
+    "id": "d20fe4f7-1c21-4b69-9683-efb3f73790c3",
+    "index": "tracardi-event", 
+    "multi": true, 
+    "script": "Map temp = new HashMap();\ntemp.putAll(ctx._source);..."
+    "worker": "reindex",
+    "custom_worker_required": [
+      {
+        "field_name": "xxx",
+        "old_type": "boolean",
+        "new_type": "integer"
+      }
+    ],
+    "asynchronous": true
+  }
+```
+- `index` property defines the name of the index
+- `multi` indicates if given index is a multi index or not
+- `script` is just a Painless script to reindex data
+- `worker` is a name of needed worker function from tracardi/worker repo
+- `custom_worker_required` is an array of type changes that cannot be handled by Painless
+  scripting language
+- `asynchronous` indicates whether the worker should execute its task apart from other workers,
+  or in a synchronous chain - in the second case, schemas are executed in the order they have been 
+  put in the migration file.
