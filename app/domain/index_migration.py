@@ -7,7 +7,7 @@ from uuid import uuid4
 class IndexMigration(BaseModel):
     """
     That's an object that gets written to the migration file:
-        id: just generic UUID4
+        id: just some hash
         index: name of the index to be migrated
         multi: indicates if the index to be migrated is multi or not
         script: painless script to be used to reindex docs

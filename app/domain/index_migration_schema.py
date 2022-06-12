@@ -4,6 +4,7 @@ from app.service.script_builder import ScriptBuilder
 from typing import List
 from app.domain.operation import Operation
 from app.domain.field_change import FieldChange
+from hashlib import sha1
 
 
 class IndexMigrationSchema(BaseModel):
@@ -24,6 +25,7 @@ class IndexMigrationSchema(BaseModel):
     def build_migration(self) -> IndexMigration:
 
         return IndexMigration(
+            id=sha1(self.index),
             index=self.index,
             multi=self.multi,
             script=ScriptBuilder(operations=self.operations).build(),
