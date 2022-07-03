@@ -33,6 +33,7 @@ def main():
 
         diffs = []
         for key in common_indices:
+            logger.log(level=logging.INFO, msg=f"Processing common index '{key}'")
             diffs.append(
                 IndexDifference(
                     name=key,
@@ -52,7 +53,7 @@ def main():
 
     except ElasticClientException as e:
         client.close()
-        print(f"Error info: {str(e)}")
+        logger.log(msg=f"Error info: {str(e)}", level=logging.ERROR)
         return
 
 
