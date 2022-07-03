@@ -31,7 +31,7 @@ here's the structure of the migration schema:
     "id": "d20fe4f7-1c21-4b69-9683-efb3f73790c3",
     "index": "tracardi-event", 
     "multi": true, 
-    "script": "Map temp = new HashMap();\ntemp.putAll(ctx._source);..."
+    "script": "Map row = new HashMap();\nrow.putAll(ctx._source);..."
     "worker": "reindex",
     "custom_worker_required": [
       {
