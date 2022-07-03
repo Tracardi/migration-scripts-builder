@@ -7,12 +7,16 @@ from app.service.save_manager import SaveManager
 import logging
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler())
 
 
 def main():
     client = ElasticClient(config.elastic_host)
-    new_codename = input("Provide a codename of your current Tracardi version:\n")
-    old_codename = input("Provide a codename of your old Tracardi version:\n")
+    logger.info(msg="Provide a codename of your current Tracardi version:\n")
+    new_codename = input()
+    logger.info(msg="Provide a codename of your old Tracardi version:\n")
+    old_codename = input()
 
     try:
         old_indices = client.mappings_for_codename(old_codename)
@@ -21,22 +25,21 @@ def main():
 
         common_indices = set(new_indices.keys()).intersection(old_indices.keys())
         removed_indices = set(old_indices.keys()) - set(new_indices.keys())
-        logger.log(level=logging.INFO,
-                   msg=f"Found removed indices: {', '.join(removed_indices)}" if removed_indices else
+        logger.info(msg=f"Found removed indices: {', '.join(removed_indices)}" if removed_indices else
                    "No removed indices found")
 
         added_indices = set(new_indices.keys()) - set(old_indices.keys())
-        logger.log(level=logging.INFO,
-                   msg=f"Found new indices: {', '.join(added_indices)}" if added_indices else
+        logger.info(msg=f"Found new indices: {', '.join(added_indices)}" if added_indices else
                    "No new indices found")
         comment = f"Added indices: {', '.join(added_indices)}; removed indices: {', '.join(removed_indices)}"
 
         diffs = []
         for key in common_indices:
-            logger.log(level=logging.INFO, msg=f"Processing common index '{key}'")
+            logger.info(msg=f"Processing common index '{key}'")
             diffs.append(
                 IndexDifference(
-                    name=key,
+                    from_index=key,
+                    to_index=key,
                     difference=DifferenceFinder(
                         old_mapping=old_indices[key].mapping,
                         new_mapping=new_indices[key].mapping
@@ -47,13 +50,14 @@ def main():
 
         migrations = [diff.to_migration().build_migration() for diff in diffs]
 
-        mig_name = input("How would you like to name your migration?\n")
+        logger.info(msg="How would you like to name your migration?\n")
+        mig_name = input()
 
         SaveManager.save_migrations([comment, *migrations], mig_name)
 
     except ElasticClientException as e:
         client.close()
-        logger.log(msg=f"Error info: {str(e)}", level=logging.ERROR)
+        logger.error(msg=f"Error info: {str(e)}")
         return
 
 
