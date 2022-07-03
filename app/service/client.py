@@ -23,7 +23,7 @@ class ElasticClient:
 
             result = {}
             for index_name in indices_names:
-                result.update(**self._client.indices.get_mapping(index=index_name).body)
+                result.update(**self._client.indices.get_mapping(index=index_name))
 
             if codename:
                 result = {key.split(codename)[1][1:]: result[key] for key in result}

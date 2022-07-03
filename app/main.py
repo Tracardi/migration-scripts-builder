@@ -4,10 +4,12 @@ from app.service.client import ElasticClient
 from app.domain.index_difference import IndexDifference
 from app.service.difference_finder import DifferenceFinder
 from app.service.save_manager import SaveManager
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def main():
-
     client = ElasticClient(config.elastic_host)
     new_codename = input("Provide a codename of your current Tracardi version:\n")
     old_codename = input("Provide a codename of your old Tracardi version:\n")
@@ -18,22 +20,29 @@ def main():
         client.close()
 
         common_indices = set(new_indices.keys()).intersection(old_indices.keys())
-
         removed_indices = set(old_indices.keys()) - set(new_indices.keys())
+        logger.log(level=logging.INFO,
+                   msg=f"Found removed indices: {', '.join(removed_indices)}" if removed_indices else
+                   "No removed indices found")
+
         added_indices = set(new_indices.keys()) - set(old_indices.keys())
+        logger.log(level=logging.INFO,
+                   msg=f"Found new indices: {', '.join(added_indices)}" if added_indices else
+                   "No new indices found")
         comment = f"Added indices: {', '.join(added_indices)}; removed indices: {', '.join(removed_indices)}"
 
-        diffs = [
-            IndexDifference(
-                name=key,
-                difference=DifferenceFinder(
-                    old_mapping=old_indices[key].mapping,
-                    new_mapping=new_indices[key].mapping
-                ).get_difference(),
-                multi=old_indices[key].multi and new_indices[key].multi,
+        diffs = []
+        for key in common_indices:
+            diffs.append(
+                IndexDifference(
+                    name=key,
+                    difference=DifferenceFinder(
+                        old_mapping=old_indices[key].mapping,
+                        new_mapping=new_indices[key].mapping
+                    ).get_difference(),
+                    multi=old_indices[key].multi and new_indices[key].multi
+                )
             )
-            for key in common_indices
-        ]
 
         migrations = [diff.to_migration().build_migration() for diff in diffs]
 

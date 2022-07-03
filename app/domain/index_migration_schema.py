@@ -25,7 +25,7 @@ class IndexMigrationSchema(BaseModel):
     def build_migration(self) -> IndexMigration:
 
         return IndexMigration(
-            id=sha1(self.index),
+            id=sha1(self.index.encode('utf-8')).hexdigest(),
             index=self.index,
             multi=self.multi,
             script=ScriptBuilder(operations=self.operations).build(),
