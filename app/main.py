@@ -53,6 +53,8 @@ def main():
         logger.info(msg="How would you like to name your migration?\n")
         mig_name = input()
 
+        # TODO HANDLE RENAME
+
         SaveManager.save_migrations([comment, *migrations], mig_name)
 
     except ElasticClientException as e:

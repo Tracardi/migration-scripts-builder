@@ -28,7 +28,7 @@ class IndexMigrationSchema(BaseModel):
 
         return IndexMigration(
             id=sha1(f"{self.to_index}{self.from_index}".encode('utf-8')).hexdigest(),
-            copy=CopyIndex(
+            copy_index=CopyIndex(
                 from_index=self.from_index,
                 to_index=self.to_index,
                 multi=self.multi,
