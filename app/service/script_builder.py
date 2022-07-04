@@ -26,39 +26,39 @@ class ScriptBuilder(BaseModel):
                'ctx._source = [:];\n' \
                'ctx._source.putAll(row);' if self.operations else None
 
-    @classmethod
-    def rewrite(cls, op: Operation) -> List[str]:
+    @staticmethod
+    def rewrite(op: Operation) -> List[str]:
         return [
             f"row.{op.destination} = ctx._source.{op.source}"
         ]
 
-    @classmethod
-    def cast(cls, op: Operation) -> List[str]:
+    @staticmethod
+    def cast(op: Operation) -> List[str]:
         return [
             f"row.{op.destination} = ({op.cast})ctx._source.{op.source}"
         ]
 
-    @classmethod
-    def long_to_date(cls, op: Operation) -> List[str]:
+    @staticmethod
+    def long_to_date(op: Operation) -> List[str]:
         return [
             f"row.{op.destination} = Instant.ofEpochMilli(ctx._source.{op.source}).toString().replace(\"Z\", \"\")",
         ]
 
-    @classmethod
-    def date_to_long(cls, op: Operation) -> List[str]:
+    @staticmethod
+    def date_to_long(op: Operation) -> List[str]:
         return [
             f"row.{op.destination} = Instant.parse(ctx._source.{op.source} + \"Z\").toEpochMilli()"
         ]
 
-    @classmethod
-    def remove(cls, op: Operation) -> List[str]:
+    @staticmethod
+    def remove(op: Operation) -> List[str]:
         path = op.source.split(".")
         return [
             f"row.{'.'.join(path[:-1]) + '.' if path[:-1] else '' }remove(\"{path[-1]}\")"
         ]
 
-    @classmethod
-    def add(cls, op: Operation) -> List[str]:
+    @staticmethod
+    def add(op: Operation) -> List[str]:
         return [
             f"row.{op.source} = <type {op.cast}>"
         ]
