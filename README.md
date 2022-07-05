@@ -28,22 +28,20 @@ Sometimes, changes has to be reviewed by Tracardi developer. For this purpose,
 here's the structure of the migration schema:
 ```json
 {
-    "id": "d20fe4f7-1c21-4b69-9683-efb3f73790c3",
-    "index": "tracardi-event", 
-    "multi": true, 
-    "script": "Map row = new HashMap();\nrow.putAll(ctx._source);..."
+    "id": "67ffc4208b8e52cac124962528ade4b55659531a",
+    "copy_index": {
+      "from_index": "tracardi-session",
+      "to_index": "tracardi-session",
+      "multi": true,
+      "script": "Map row = new HashMap();\nrow.putAll(ctx._source);\n//row.context.storage.local.tracardi-profile-id = <type text>;\nctx._source = [:];\nctx._source.putAll(row);"
+    },
     "worker": "reindex",
-    "custom_worker_required": [
-      {
-        "field_name": "xxx",
-        "old_type": "boolean",
-        "new_type": "integer"
-      }
-    ],
+    "conflicts": null,
     "asynchronous": true
   }
 ```
-- `index` property defines the name of the index
+- `from_index` property defines the name of the index to move data from
+- `to_index` property defines the name of the target index
 - `multi` indicates if given index is a multi index or not
 - `script` is just a Painless script to reindex data
 - `worker` is a name of needed worker function from tracardi/worker repo
