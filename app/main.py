@@ -13,9 +13,9 @@ logger.addHandler(logging.StreamHandler())
 
 def main():
     client = ElasticClient(config.elastic_host)
-    logger.info(msg="Provide a codename of your current Tracardi version:\n")
+    print("Provide a codename of your current Tracardi version (eg. 073-dev.eb836):")
     new_codename = input()
-    logger.info(msg="Provide a codename of your old Tracardi version:\n")
+    print("Provide a codename of your old Tracardi version (eg. 072.08846):")
     old_codename = input()
 
     try:
@@ -26,11 +26,11 @@ def main():
         common_indices = set(new_indices.keys()).intersection(old_indices.keys())
         removed_indices = set(old_indices.keys()) - set(new_indices.keys())
         logger.info(msg=f"Found removed indices: {', '.join(removed_indices)}" if removed_indices else
-                   "No removed indices found")
+        "No removed indices found")
 
         added_indices = set(new_indices.keys()) - set(old_indices.keys())
         logger.info(msg=f"Found new indices: {', '.join(added_indices)}" if added_indices else
-                   "No new indices found")
+        "No new indices found")
         comment = f"Added indices: {', '.join(added_indices)}; removed indices: {', '.join(removed_indices)}"
 
         diffs = []

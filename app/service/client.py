@@ -1,9 +1,16 @@
+import logging
+
 from elasticsearch import Elasticsearch, AuthenticationException
 from pydantic import AnyHttpUrl
 from app.domain.exceptions import ElasticClientException
 import re
 from app.domain.index import Index
 from typing import Dict
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler())
 
 
 class ElasticClient:
@@ -20,6 +27,8 @@ class ElasticClient:
 
         try:
             indices_names = self._client.indices.get(index=index_name_template)
+
+            print(indices_names)
 
             result = {}
             for index_name in indices_names:
