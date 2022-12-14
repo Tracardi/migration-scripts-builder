@@ -16,7 +16,7 @@ logger.addHandler(logging.StreamHandler())
 class ElasticClient:
 
     def __init__(self, host: AnyHttpUrl):
-        self._client = Elasticsearch(hosts=host)
+        self._client = Elasticsearch(hosts=host, verify_certs=False)
 
     def mappings_for_codename(self, codename: str) -> Dict[str, Index]:
         """
